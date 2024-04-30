@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Column from './Column';
 import Cards from './Cards';
 import Barrel from './Barrel';
 
 const Board = () => {
-    const [cards, setCards] = useState(Cards || [])
+    const [cards, setCards] = useState([])
+    const [hasChecked, setHasChecked] = useState(false)
+    useEffect(()=>{hasChecked && localStorage.setItem("cards",JSON.stringify(cards))},[cards])
+    useEffect(()=>{
+        const cardData = localStorage.getItem("cards")
+        setCards(cardData ? JSON.parse(cardData): [])
+        setHasChecked(true)
+    },[])
     return (
         <div className='flex h-full w-full gap-3 overflow-scroll p-12'>
             <Column
