@@ -3,10 +3,9 @@ import './App.css';
 import Board from './components/Board';
 
 function App() {
-  const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="h-screen w-full bg-neutral-900 text-neutral-50">
+    <div className="h-screen w-full font-dm bg-black text-neutral-50 overflow-y-auto overscroll-none">
         <Board/>
     </div>
   );

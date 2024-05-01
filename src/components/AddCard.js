@@ -1,59 +1,122 @@
-import React, { useState } from 'react'
-import { FiPlus } from 'react-icons/fi'
-import {motion} from 'framer-motion'
+import React, { useState } from "react";
+import { FiPlus } from "react-icons/fi";
+import { motion } from "framer-motion";
 
-const AddCard = ({column, setCards}) => {
-    const [text, setText] = useState("")
-    const [adding, setAdding] = useState(false)
+const AddCard = ({ column, setCards }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedColumn, setSelectedColumn] = useState(column);
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        if(!text.trim().length) return;
-
-        const newCard = {
-            column,
-            title: text.trim(),
-            id: Math.random().toString(),
-        }
-
-        setCards((pv)=>[...pv, newCard])
-        setAdding(false)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title.trim().length || !description.trim().length) {
+      alert("Please fill all fields.");
+      return;
     }
+
+    const newCard = {
+      column: selectedColumn,
+      title: title.trim(),
+      description: description.trim(),
+      id: Math.random().toString(),
+    };
+
+    setCards((prevCards) => [...prevCards, newCard]);
+    setShowModal(false);
+    setTitle("");
+    setDescription("");
+    setSelectedColumn(column);
+  };
+
   return (
     <>
-    {adding ? <motion.form layout onSubmit={handleSubmit}>
-        <textarea
-        onChange={(e)=>{
-            setText(e.target.value)
-        }}
-        autoFocus
-        placeholder='Add a new Task...'
-        className='w-full rounded border border-violet-400 bg-violet-400/20 p-3 text-sm text-neutral-50 placeholder-violet-300 focus:outline-0'
-        />
-        <div className='mt-1.5 flex items-center justify-end gap-1.5'>
-            <button
-            onClick={()=>setAdding(false)}
-            className='px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-50'
-            >Close</button>
-            <button
-            type='submit'
-            className='flex items-center gap-1.5 rounded bg-neutral-50 px-3 py-1.5 text-xs text-neutral-950 transition-colors hover:bg-neutral-300'
-            >
-                <span>Add</span>
-                <FiPlus/>
-            </button>
-        </div>
-    </motion.form> : <motion.button
-    layout
-    onClick={()=>{
-        setAdding(true)
-    }}
-    className='flex w-full items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-50'>
-        <span>Add Card</span>
-        <FiPlus/>
-        </motion.button>}
+      {showModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
+        >
+          <div className="bg-white text-black p-6 rounded-lg shadow-md w-96">
+            <h2 className="text-lg font-semibold mb-4">Add Card</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Title
+                </label>
+                <input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ></textarea>
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="column"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Column
+                </label>
+                <select
+                  id="column"
+                  value={selectedColumn}
+                  onChange={(e) => setSelectedColumn(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                >
+                  <option value="todo">TO DO</option>
+                  <option value="inprogress">IN PROGRESS</option>
+                  <option value="done">DONE</option>
+                </select>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  Add Card
+                </button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      )}
+        {" "}
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex justify-center w-40 items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-white transition hover:text-black hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <FiPlus className="mr-2" />
+          Add Card
+        </button>
     </>
-  )
-}
+  );
+};
 
-export default AddCard
+export default AddCard;

@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import Card from "./Card";
 import DropIndicator from "./DropIndicator";
 import AddCard from "./AddCard";
+import Modal from "./Modal";
 
 const Column = ({ title, headingColor, column, cards, setCards }) => {
-  const [active, setActive] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleDragStart = (e, card) => {
     e.dataTransfer.setData("cardId", card.id);
@@ -13,107 +14,95 @@ const Column = ({ title, headingColor, column, cards, setCards }) => {
   const handleDragOver = (e) => {
     e.preventDefault();
     highlightIndicator(e);
-    setActive(true);
   };
 
   const highlightIndicator = (e) => {
-    const indicators = getIndicators();
-    clearHighlights(indicators)
-    const el = getNearestIndicator(e, indicators);
-    el.element.style.opacity = "1"
-  };
-
-  const clearHighlights = (els) => {
-    const indicators = els || getIndicators()
-
-    indicators.forEach((i)=>{
-        i.style.opacity = "0"
-    })
-  }
-
-  const getNearestIndicator = (e, indicators) => {
-    const DISTANCE_OFFSET = 50;
-    const el = indicators.reduce(
-      (closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = e.clientY - (box.top + DISTANCE_OFFSET);
-
-        if (offset < 0 && offset > closest.offset) {
-          return { offset: offset, element: child };
-        } else {
-          return closest;
-        }
-      },
-      {
-        offset: Number.NEGATIVE_INFINITY,
-        element: indicators[indicators.length - 1],
-      }
-    );
-
-    return el;
-  };
-
-  const getIndicators = () => {
-    return Array.from(document.querySelectorAll(`[data-column="${column}"]`));
-  };
-
-  const handleDragLeave = (e) => {
-    setActive(false);
-    clearHighlights()
-  };
-
-  const handleDragEnd = (e) => {
-    setActive(false);
-    clearHighlights()
-    const cardId = e.dataTransfer.getData("cardId")
-    const indicators = getIndicators()
-    const {element} = getNearestIndicator(e, indicators) 
-    const before = element.dataset.before || "-1"
-    if(before !== cardId){
-        let copy = [...cards]
-        let cardToTransfer = copy.find((c)=>c.id===cardId)
-        if(!cardToTransfer) return
-        cardToTransfer = {...cardToTransfer, column}
-        copy = copy.filter((c)=>c.id!==cardId)
-        const moveToBack = before === "-1"
-        if(moveToBack){
-            copy.push(cardToTransfer)
-        }else{
-            const insertAtIndex = copy.findIndex((el)=>el.id === before)
-            if(insertAtIndex===undefined) return
-            copy.splice(insertAtIndex, 0, cardToTransfer)
-        }
-        setCards(copy)
+    const el = getNearestIndicator(e);
+    if (el) {
+      el.style.opacity = "1";
     }
   };
 
-  if (cards === undefined) {
-    cards = [];
-  }
+  const getNearestIndicator = (e) => {
+    const DISTANCE_OFFSET = 50;
+    const indicators = document.querySelectorAll(`[data-column="${column}"]`);
+    let closest = {
+      offset: Number.NEGATIVE_INFINITY,
+      element: indicators[indicators.length - 1],
+    };
 
-  const filteredCards = cards.filter((c) => c.column === column);
+    for (let i = 0; i < indicators.length; i++) {
+      const box = indicators[i].getBoundingClientRect();
+      const offset = e.clientY - (box.top + DISTANCE_OFFSET);
+      if (offset < 0 && offset > closest.offset) {
+        closest = { offset: offset, element: indicators[i] };
+      }
+    }
+
+    return closest.element;
+  };
+
+  const handleDragLeave = (e) => {
+    const el = getNearestIndicator(e);
+    if (el) {
+      el.style.opacity = "0";
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    const cardId = e.dataTransfer.getData("cardId");
+    const el = getNearestIndicator(e);
+    if (el) {
+      const beforeId = el.dataset.before || "-1";
+      setCards((prevCards) => {
+        const updatedCards = prevCards.filter((card) => card.id !== cardId);
+        const index = updatedCards.findIndex((card) => card.id === beforeId);
+        updatedCards.splice(
+          index === -1 ? updatedCards.length : index,
+          0,
+          {
+            ...prevCards.find((card) => card.id === cardId),
+            column,
+          }
+        );
+        return updatedCards;
+      });
+      el.style.opacity = "0";
+    }
+  };
 
   return (
-    <div className="w-56 shrink-0">
+    <div className="shrink-0">
       <div className="mb-3 flex items-center justify-between">
         <h3 className={`font-medium ${headingColor}`}>{title}</h3>
         <span className="rounded text-sm text-neutral-400">
-          {filteredCards.length}
+          {cards.filter((c) => c.column === column).length}
         </span>
       </div>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDragEnd}
-        className={`h-full w-full transition-colors ${
-          active ? "bg-neutral-800/50" : "bg-neutral-800/0"
-        }`}
+        className="h-full w-full transition-colors bg-neutral-800/0"
       >
-        {filteredCards.map((c) => {
-          return <Card key={c.id} {...c} handleDragStart={handleDragStart} />;
-        })}
+        {cards
+          .filter((c) => c.column === column)
+          .map((c) => (
+            <div className="hover:scale-110">
+            <Card key={c.id} {...c} handleDragStart={handleDragStart} />
+            </div>
+          ))}
         <DropIndicator beforeId="-1" column={column} />
-        <AddCard column={column} setCards={setCards} />
+        {showModal && (
+          <Modal setShowModal={setShowModal}>
+            <AddCard
+              column={column}
+              setCards={setCards}
+              setShowModal={setShowModal}
+            />
+          </Modal>
+        )}
+        {!showModal && <AddCard column={column} setCards={setCards} setShowModal={setShowModal} />}
       </div>
     </div>
   );
