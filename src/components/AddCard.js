@@ -7,14 +7,27 @@ const AddCard = ({ column, setCards }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedColumn, setSelectedColumn] = useState(column);
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim().length || !description.trim().length) {
-      alert("Please fill all fields.");
+
+    if (!/^[A-Za-z\s]+$/.test(title.trim())) {
+      setTitleError("Title should only contain alphabets");
       return;
+    } else {
+      setTitleError("");
     }
 
+    if (description.trim().length < 25) {
+      setDescriptionError("Description should be at least 25 characters");
+      return;
+    } else {
+      setDescriptionError("");
+    }
+
+    // If all validations pass, add the card
     const newCard = {
       column: selectedColumn,
       title: title.trim(),
@@ -55,6 +68,9 @@ const AddCard = ({ column, setCards }) => {
                   onChange={(e) => setTitle(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
+                {titleError && (
+                  <p className="text-red-500 text-xs mt-1">{titleError}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label
@@ -69,6 +85,9 @@ const AddCard = ({ column, setCards }) => {
                   onChange={(e) => setDescription(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ></textarea>
+                {descriptionError && (
+                  <p className="text-red-500 text-xs mt-1">{descriptionError}</p>
+                )}
               </div>
               <div className="mb-4">
                 <label
@@ -98,7 +117,7 @@ const AddCard = ({ column, setCards }) => {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   Add Card
                 </button>

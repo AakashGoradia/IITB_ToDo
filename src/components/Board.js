@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Column from "./Column";
 import Barrel from "./Barrel";
-import AddCard from "./AddCard";
 import LiveWave from "./LiveWave";
 import ImageCarousel from "./ImageCarousel";
 
@@ -21,50 +20,52 @@ const Board = () => {
 
   return (
     <>
-      <div className="bg-none">
-        <h1 className="flex justify-center mt-8 text-3xl font-bold">
+      <div className="flex flex-row justify-center gap-x-32">
+      <div class="w-1/5">
+          <ImageCarousel />
+        </div>
+        <h1 className="mt-32 flex justify-center text-5xl font-bold">
           Simple TO-DO List
         </h1>
-        <div className="flex justify-center">
-          {" "}
-          <div class=" lg:max-w-lg lg:w-full md:w-1/2 w-5/6 lg:mr-8">
-            <ImageCarousel />
-          </div>
-        </div>
+        <div className="text-center h-1/16 w-1/16">
+          <Barrel setCards={setCards} />
+          <h1>(Drag here to Delete a card)</h1>
 
-        <div className="flex justify-between h-full w-full gap-3 p-12">
-          {/* <div className="flex justify-center">
-                <AddCard setCards={setCards} />
-            </div> */}
-          <div className="flex justify-center h-full w-full gap-12">
-            <Column
-              title="TO DO"
-              headingColor="text-[#BFEFFF]"
-              column="todo"
-              cards={cards}
-              setCards={setCards}
-            />
-            <Column
-              title="IN PROGRESS"
-              column="inprogress"
-              headingColor="text-[#FFD700]"
-              cards={cards}
-              setCards={setCards}
-            />
-            <Column
-              title="DONE"
-              column="done"
-              headingColor="text-[#90EE90]"
-              cards={cards}
-              setCards={setCards}
-            />
-            <div className="mx-8">
-              <Barrel setCards={setCards} />
-            </div>
-          </div>
-        </div>
-        <LiveWave />
+        </div>{" "}
       </div>
+
+      <div className="flex flex-col h-full w-full gap-3 p-12">
+        {/* <AddCard setCards={setCards} /> */}
+
+        <div className="flex justify-center h-full w-full gap-12">
+          <Column
+            title="TO DO"
+            headingColor="text-[#BFEFFF]"
+            column="todo"
+            cards={cards}
+            setCards={setCards}
+          />
+          <Column
+            title="IN PROGRESS"
+            column="inprogress"
+            headingColor="text-[#FFD700]"
+            cards={cards}
+            setCards={setCards}
+          />
+          <Column
+            title="DONE"
+            column="done"
+            headingColor="text-[#90EE90]"
+            cards={cards}
+            setCards={setCards}
+          />
+        </div>
+      </div>
+      <div className="fixed h-1/2 w-1/2">
+
+      </div>
+
+      <LiveWave />
     </>
   );
 };

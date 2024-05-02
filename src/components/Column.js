@@ -49,6 +49,10 @@ const Column = ({ title, headingColor, column, cards, setCards }) => {
     }
   };
 
+  const handleDeleteCard = (cardId) => {
+    setCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
+  };
+
   const handleDragEnd = (e) => {
     const cardId = e.dataTransfer.getData("cardId");
     const el = getNearestIndicator(e);
@@ -72,6 +76,7 @@ const Column = ({ title, headingColor, column, cards, setCards }) => {
   };
 
   return (
+    
     <div className="shrink-0">
       <div className="mb-3 flex items-center justify-between">
         <h3 className={`font-medium ${headingColor}`}>{title}</h3>
@@ -89,7 +94,7 @@ const Column = ({ title, headingColor, column, cards, setCards }) => {
           .filter((c) => c.column === column)
           .map((c) => (
             <div className="hover:scale-110">
-            <Card key={c.id} {...c} handleDragStart={handleDragStart} />
+            <Card key={c.id} {...c} handleDragStart={handleDragStart} handleDeleteCard={handleDeleteCard}/>
             </div>
           ))}
         <DropIndicator beforeId="-1" column={column} />
